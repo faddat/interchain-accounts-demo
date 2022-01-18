@@ -5,7 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
@@ -32,29 +31,18 @@ func (k msgServer) RegisterAccount(goCtx context.Context, msg *types.MsgRegister
 		return nil, err
 	}
 
-	if err := k.RegisterInterchainAccount(ctx, acc, msg.ConnectionId); err != nil {
+	if err := k.icaControllerKeeper.InitInterchainAccount(ctx, msg.ConnectionId, acc.String()); err != nil {
 		return nil, err
 	}
 
 	return &types.MsgRegisterAccountResponse{}, nil
 }
 
-// Send implements the Msg/Send interface
-func (k msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.MsgSendResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	err := k.TrySendCoins(ctx, msg.Owner, msg.InterchainAccount, msg.ToAddress, msg.Amount)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.MsgSendResponse{}, nil
-}
-
-// Delegate implements the Msg/Delegate interface
-func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*types.MsgDelegateResponse, error) {
+// SubmitTx implements the Msg/SubmitTx interface
+func (k msgServer) SubmitTx(goCtx context.Context, msg *types.MsgSubmitTx) (*types.MsgSubmitTxResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	portID, err := icatypes.NewControllerPortID(msg.Owner.String())
+	portID, err := icatypes.NewControllerPortID(msg.Owner)
 	if err != nil {
 		return nil, err
 	}
@@ -69,13 +57,7 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		return nil, sdkerrors.Wrap(channeltypes.ErrChannelCapabilityNotFound, "module does not own channel capability")
 	}
 
-	msgDelegate := &stakingtypes.MsgDelegate{
-		DelegatorAddress: msg.InterchainAccount,
-		ValidatorAddress: msg.ValidatorAddress,
-		Amount:           msg.Amount,
-	}
-
-	data, err := icatypes.SerializeCosmosTx(k.cdc, []sdk.Msg{msgDelegate})
+	data, err := icatypes.SerializeCosmosTx(k.cdc, []sdk.Msg{msg.GetTxMsg()})
 	if err != nil {
 		return nil, err
 	}
@@ -93,5 +75,5 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		return nil, err
 	}
 
-	return &types.MsgDelegateResponse{}, nil
+	return &types.MsgSubmitTxResponse{}, nil
 }

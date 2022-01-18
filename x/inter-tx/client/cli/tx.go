@@ -2,13 +2,15 @@ package cli
 
 import (
 	"fmt"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"io/ioutil"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/interchain-accounts/x/inter-tx/types"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -25,8 +27,7 @@ func GetTxCmd() *cobra.Command {
 
 	cmd.AddCommand(
 		getRegisterAccountCmd(),
-		getSendTxCmd(),
-		getDelegateTxCmd(),
+		getSubmitTxCmd(),
 	)
 
 	return cmd
@@ -62,62 +63,36 @@ func getRegisterAccountCmd() *cobra.Command {
 	return cmd
 }
 
-func getSendTxCmd() *cobra.Command {
+func getSubmitTxCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "send [interchain_account_address] [to_address] [amount]",
-		Args: cobra.ExactArgs(3),
+		Use:  "submit-tx [interchain_account_address] [path/to/sdk_msg.json]",
+		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			amount, err := sdk.ParseCoinsNormalized(args[2])
+			cdc := codec.NewProtoCodec(clientCtx.InterfaceRegistry)
+
+			var txMsg sdk.Msg
+			if err := cdc.UnmarshalInterfaceJSON([]byte(args[1]), &txMsg); err != nil {
+
+				// check for file path if JSON input is not provided
+				contents, err := ioutil.ReadFile(args[1])
+				if err != nil {
+					return errors.Wrap(err, "neither JSON input nor path to .json file for sdk msg were provided")
+				}
+
+				if err := cdc.UnmarshalInterfaceJSON(contents, &txMsg); err != nil {
+					return errors.Wrap(err, "error unmarshalling sdk msg file")
+				}
+			}
+
+			msg, err := types.NewMsgSubmitTx(txMsg, args[0], clientCtx.GetFromAddress().String())
 			if err != nil {
 				return err
 			}
-
-			msg := types.NewMsgSend(
-				clientCtx.GetFromAddress(),
-				amount,
-				args[0],
-				args[1],
-			)
-
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
-
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-		},
-	}
-
-	flags.AddTxFlagsToCmd(cmd)
-
-	return cmd
-}
-
-func getDelegateTxCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:  "delegate [interchain_account_address] [val_address] [amount]",
-		Args: cobra.ExactArgs(3),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			amount, err := sdk.ParseCoinNormalized(args[2])
-			if err != nil {
-				return err
-			}
-
-			msg := types.NewMsgDelegate(
-				clientCtx.GetFromAddress(),
-				amount,
-				args[0],
-				args[1],
-			)
 
 			if err := msg.ValidateBasic(); err != nil {
 				return err
