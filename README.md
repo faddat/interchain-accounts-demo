@@ -2,7 +2,6 @@
 
 ## Overview 
 
-##### WARNING
 > Beware of dragons! Alpha software!
 
 The following repository contains a basic example of an Interchain Accounts authentication module and serves as a developer guide for teams that wish to use interchain accounts functionality.
@@ -47,16 +46,18 @@ make start-rly
 
 **NOTE:** For the purposes of this demo the setup scripts have been provided with a set of hardcoded mnemonics that generate deterministic wallet addresses used below.
 
+```bash
+# Store the following account addresses within the current shell env
+export DEMOWALLET_1=$(icad keys show demowallet1 -a --keyring-backend test --home ./data/test-1) && echo $DEMOWALLET_1;
+export DEMOWALLET_2=$(icad keys show demowallet2 -a --keyring-backend test --home ./data/test-2) && echo $DEMOWALLET_2;
+```
+
 ### Registering an Interchain Account via IBC
 
 Register an Interchain Account using the `intertx register` cmd. 
 Here the message signer is used as the account owner.
 
 ```bash
-# Store the following account addresses within the current shell env
-export DEMOWALLET_1=$(icad keys show demowallet1 -a --keyring-backend test --home ./data/test-1) && echo $DEMOWALLET_1;
-export DEMOWALLET_2=$(icad keys show demowallet2 -a --keyring-backend test --home ./data/test-2) && echo $DEMOWALLET_2;
-
 # Register an interchain account on behalf of DEMOWALLET_1 where chain test-2 is the interchain accounts host
 icad tx intertx register --from $DEMOWALLET_1 --connection-id connection-0 --chain-id test-1 --gas 150000 --home ./data/test-1 --node tcp://localhost:16657 --keyring-backend test -y
 
@@ -72,7 +73,7 @@ export ICA_ADDR=$(icad query intertx interchainaccounts $DEMOWALLET_1 --home ./d
 Allocate funds to the new Interchain Account wallet by using the `bank send` cmd.
 Note this is executed on the host chain to provide the account with an initial balance to execute transactions.
 
-```
+```bash
 # Query the interchain account balance on the host chain. It should be empty.
 icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
 
@@ -90,7 +91,7 @@ This command accepts a generic `sdk.Msg` JSON payload or path to JSON file as an
 
 - **Example 1:** Staking Delegation
 
-```
+```bash
 # Output the host chain validator operator address: cosmosvaloper1qnk2n4nlkpw9xfqntladh74w6ujtulwnmxnh3k
 cat ./data/test-2/config/genesis.json | jq -r '.app_state.genutil.gen_txs[0].body.messages[0].validator_address'
 
@@ -117,7 +118,7 @@ icad q staking delegations-to cosmosvaloper1qnk2n4nlkpw9xfqntladh74w6ujtulwnmxnh
 
 - **Example 2:** Bank Send
 
-```
+```bash
 # Submit a bank send tx using the interchain account via ibc
 icad tx intertx submit \
 '{
