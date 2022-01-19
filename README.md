@@ -1,52 +1,55 @@
 # Interchain Accounts
 
-### Warning 
-> Beware of dragons!</br></br>
-> The interchain accounts module is currently under development and has been moved to the `ibc-go` repo [here](https://github.com/cosmos/ibc-go/tree/main/modules/apps/27-interchain-accounts). Interchain Accounts is aiming to release in January 2022.</br></br>
-> This repo aims to demonstrate demo modules that utilize interchain accounts and serve as a developer guide for teams aiming to use interchain accounts functionality.</br></br>
-> The existing demo outlined below will be updated to coincide with the interchain accounts release.</br>
+## Overview 
+
+The following repository contains a basic example of an Interchain Accounts authentication module and serves as a developer guide for teams that wish to use interchain accounts functionality.
+
+The Interchain Accounts module is currently under active development and has been moved to the `ibc-go` repository [here](https://github.com/cosmos/ibc-go/tree/main/modules/apps/27-interchain-accounts). Interchain Accounts is aiming to release in Q1 2022.
+
+This repository will be updated regularly to consume pre-release versions of `ibc-go` equipped with the Interchain Accounts module.
 
 ### Developer Documentation
 
-> Coming soon! 
+Interchain Accounts developer docs can be found on the IBC documentation website.
 
-## Local Demo
+https://ibc.cosmos.network/main/app-modules/interchain-accounts/overview.html
 
-### Setup
+## Setup
+
+1. Clone this repository and build the application binary
 
 ```bash
-# Clone this repository and build
 git clone https://github.com/cosmos/interchain-accounts.git
 cd interchain-accounts
+
 make install 
+```
 
-# Hermes Relayer
-# [Hermes](https://hermes.informal.systems/) is a Rust implementation of a relayer for the [Inter-Blockchain Communication (IBC)](https://ibcprotocol.org/) protocol.
-#
-# Currently supported by Hermes v0.9.0
-# 
-# Alternatively set a custom binary path using $HERMES_BINARY in /network/hermes/variables.sh
+2. Download and install an IBC relayer. *The following demo is supported by Hermes v0.9.0, and this is currently the recommended relayer.*
+```
 cargo install --version 0.9.0 ibc-relayer-cli --bin hermes --locked
+```
 
-# Bootstrap two chains & create an IBC connection
+3. Bootstrap two chains and create an IBC connection
+```
 make init
+```
 
-# Start the hermes relayer
+4. Start the relayer
+```
 make start-rly
 ```
 
-### Demo
+## Demo
 
-For the purposes of this demo the setup scripts have been provided with a set of hardcoded mnemonics. 
-This generates deterministic wallet addresses that are used below.
+**NOTE:** For the purposes of this demo the setup scripts have been provided with a set of hardcoded mnemonics that generate deterministic wallet addresses used below.
 
-#### Registering an Interchain Account via IBC
+### Registering an Interchain Account via IBC
 
-Register an Interchain Account using the `intertx register` command where the message signer is the account owner.
+Register an Interchain Account using the `intertx register` cmd. 
+Here the message signer is used as the account owner.
 
 ```bash
-# Open a seperate terminal
-
 # Store the following account addresses within the current shell env
 export DEMOWALLET_1=$(icad keys show demowallet1 -a --keyring-backend test --home ./data/test-1) && echo $DEMOWALLET_1;
 export DEMOWALLET_2=$(icad keys show demowallet2 -a --keyring-backend test --home ./data/test-2) && echo $DEMOWALLET_2;
@@ -63,32 +66,26 @@ export ICA_ADDR=$(icad query intertx interchainaccounts $DEMOWALLET_1 --home ./d
 
 #### Funding the Interchain Account wallet
 
-Allocate funds to the new Interchain Account wallet by using the `bank send` command.
+Allocate funds to the new Interchain Account wallet by using the `bank send` cmd.
+Note this is executed on the host chain to provide the account with an initial balance to execute transactions.
 
 ```
-# Check the interchain account's balance on test-2 chain. It should be empty.
+# Query the interchain account balance on the host chain. It should be empty.
 icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
 
-# Send some assets to $ICA_ADDR.
+# Send funds to the interchain account.
 icad tx bank send $DEMOWALLET_2 $ICA_ADDR 10000stake --chain-id test-2 --home ./data/test-2 --node tcp://localhost:26657 --keyring-backend test -y
 
-# Check that the balance has been updated
-icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
-
-# Test sending assets from interchain account via ibc.
-icad tx intertx send $ICA_ADDR $DEMOWALLET_2 5000stake --chain-id test-1 --gas 90000 --home ./data/test-1 --node tcp://localhost:16657 --from $DEMOWALLET_1 --keyring-backend test -y
-
-# Wait until the relayer has relayed the packet
-
-# Query the interchain account balance and observe the changes in funds
+# Query the balance once again and observe the changes
 icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
 ```
 
 #### Sending Interchain Account transactions
 
-Send transactions to be executed using the new Interchain Account.
+Send Interchain Accounts transactions using the `intertx submit` cmd. 
+This command accepts a generic `sdk.Msg` JSON payload or path to JSON file as an arg.
 
-1. Staking Delegation
+- **Example 1:** Staking Delegation
 
 ```
 # Output the host chain validator operator address: cosmosvaloper1qnk2n4nlkpw9xfqntladh74w6ujtulwnmxnh3k
@@ -106,10 +103,39 @@ icad tx intertx submit \
     }
 }' --from $DEMOWALLET_1 --chain-id test-1 --home ./data/test-1 --node tcp://localhost:16657 --keyring-backend test -y
 
+# Alternatively provide a path to a JSON file
+icad tx intertx submit [path/to/msg.json] --from $DEMOWALLET_1 --chain-id test-1 --home ./data/test-1 --node tcp://localhost:16657 --keyring-backend test -y
+
 # Wait until the relayer has relayed the packet
 
 # Inspect the staking delegations on the host chain
 icad q staking delegations-to cosmosvaloper1qnk2n4nlkpw9xfqntladh74w6ujtulwnmxnh3k --home ./data/test-2 --node tcp://localhost:26657
+```
+
+- **Example 2:** Bank Send
+
+```
+# Submit a bank send tx using the interchain account via ibc
+icad tx intertx submit \
+'{
+    "@type":"/cosmos.bank.v1beta1.MsgSend",
+    "from_address":"cosmos1hd0f4u7zgptymmrn55h3hy20jv2u0ctdpq23cpe8m9pas8kzd87smtf8al",
+    "to_address":"cosmos10h9stc5v6ntgeygf5xf945njqq5h32r53uquvw",
+    "amount": [
+        {
+            "denom": "stake",
+            "amount": "1000"
+        }
+    ]
+}' --from $DEMOWALLET_1 --chain-id test-1 --home ./data/test-1 --node tcp://localhost:16657 --keyring-backend test -y
+
+# Alternatively provide a path to a JSON file
+icad tx intertx submit [path/to/msg.json] --from $DEMOWALLET_1 --chain-id test-1 --home ./data/test-1 --node tcp://localhost:16657 --keyring-backend test -y
+
+# Wait until the relayer has relayed the packet
+
+# Query the interchain account balance on the host chain
+icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
 ```
 
 ## Collaboration
