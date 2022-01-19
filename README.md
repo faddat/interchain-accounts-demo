@@ -28,13 +28,21 @@ make install
 # Alternatively set a custom binary path using $HERMES_BINARY in /network/hermes/variables.sh
 cargo install --version 0.9.0 ibc-relayer-cli --bin hermes --locked
 
-# Bootstrap two local chains & create a connection using the hermes relayer
+# Bootstrap two chains & create an IBC connection
 make init
 
-# Wait for the ibc connection & channel handshake to complete and the relayer to start
+# Start the hermes relayer
+make start-rly
 ```
 
 ### Demo
+
+For the purposes of this demo the setup scripts have been provided with a set of hardcoded mnemonics. 
+This generates deterministic wallet addresses that are used below.
+
+#### Registering an Interchain Account via IBC
+
+Register an Interchain Account using the `intertx register` command where the message signer is the account owner.
 
 ```bash
 # Open a seperate terminal
@@ -46,16 +54,18 @@ export DEMOWALLET_2=$(icad keys show demowallet2 -a --keyring-backend test --hom
 # Register an interchain account on behalf of DEMOWALLET_1 where chain test-2 is the interchain accounts host
 icad tx intertx register --from $DEMOWALLET_1 --connection-id connection-0 --chain-id test-1 --gas 150000 --home ./data/test-1 --node tcp://localhost:16657 --keyring-backend test -y
 
-# Start the hermes relayer in the first terminal
-# This will also finish the channel creation handshake signalled during the register step
-make start-rly
-
 # Query the address of the interchain account
 icad query intertx interchainaccounts $DEMOWALLET_1 --home ./data/test-1 --node tcp://localhost:16657
 
-# Store the interchain account address by parsing the query result
+# Store the interchain account address by parsing the query result: cosmos1hd0f4u7zgptymmrn55h3hy20jv2u0ctdpq23cpe8m9pas8kzd87smtf8al
 export ICA_ADDR=$(icad query intertx interchainaccounts $DEMOWALLET_1 --home ./data/test-1 --node tcp://localhost:16657 -o json | jq -r '.interchain_account_address') && echo $ICA_ADDR
+```
 
+#### Funding the Interchain Account wallet
+
+Allocate funds to the new Interchain Account wallet by using the `bank send` command.
+
+```
 # Check the interchain account's balance on test-2 chain. It should be empty.
 icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
 
@@ -72,15 +82,34 @@ icad tx intertx send $ICA_ADDR $DEMOWALLET_2 5000stake --chain-id test-1 --gas 9
 
 # Query the interchain account balance and observe the changes in funds
 icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
+```
 
-# Fetch the host chain validator operator address
-export VAL_ADDR=$(cat ./data/test-2/config/genesis.json | jq -r '.app_state.genutil.gen_txs[0].body.messages[0].validator_address') && echo $VAL_ADDR
+#### Sending Interchain Account transactions
 
-# Perform a staking delegation using the interchain account with the remaining the funds via ibc
-icad tx intertx delegate $ICA_ADDR $VAL_ADDR 5000stake --from $DEMOWALLET_1 --chain-id test-1 --home ./data/test-1 --node tcp://localhost:16657 --keyring-backend test -y
+Send transactions to be executed using the new Interchain Account.
 
-# Inspect the staking delegations
-icad q staking delegations-to $VAL_ADDR --home ./data/test-2 --node tcp://localhost:26657
+1. Staking Delegation
+
+```
+# Output the host chain validator operator address: cosmosvaloper1qnk2n4nlkpw9xfqntladh74w6ujtulwnmxnh3k
+cat ./data/test-2/config/genesis.json | jq -r '.app_state.genutil.gen_txs[0].body.messages[0].validator_address'
+
+# Submit a staking delegation tx using the interchain account via ibc
+icad tx intertx submit \
+'{
+    "@type":"/cosmos.staking.v1beta1.MsgDelegate",
+    "delegator_address":"cosmos1hd0f4u7zgptymmrn55h3hy20jv2u0ctdpq23cpe8m9pas8kzd87smtf8al",
+    "validator_address":"cosmosvaloper1qnk2n4nlkpw9xfqntladh74w6ujtulwnmxnh3k",
+    "amount": {
+        "denom": "stake",
+        "amount": "1000"
+    }
+}' --from $DEMOWALLET_1 --chain-id test-1 --home ./data/test-1 --node tcp://localhost:16657 --keyring-backend test -y
+
+# Wait until the relayer has relayed the packet
+
+# Inspect the staking delegations on the host chain
+icad q staking delegations-to cosmosvaloper1qnk2n4nlkpw9xfqntladh74w6ujtulwnmxnh3k --home ./data/test-2 --node tcp://localhost:26657
 ```
 
 ## Collaboration
