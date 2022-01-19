@@ -31,6 +31,10 @@ func (msg MsgRegisterAccount) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "missing sender address")
 	}
 
+	if _, err := sdk.AccAddressFromBech32(msg.Owner); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "failed to parse address: %s", msg.Owner)
+	}
+
 	return nil
 }
 
@@ -45,16 +49,15 @@ func (msg MsgRegisterAccount) GetSigners() []sdk.AccAddress {
 }
 
 // NewMsgSubmitTx creates and returns a new MsgSubmitTx instance
-func NewMsgSubmitTx(sdkMsg sdk.Msg, interchainAccAddr, owner string) (*MsgSubmitTx, error) {
+func NewMsgSubmitTx(sdkMsg sdk.Msg, owner string) (*MsgSubmitTx, error) {
 	any, err := PackTxMsgAny(sdkMsg)
 	if err != nil {
 		return nil, err
 	}
 
 	return &MsgSubmitTx{
-		Owner:             owner,
-		InterchainAccount: interchainAccAddr,
-		Msg:               any,
+		Owner: owner,
+		Msg:   any,
 	}, nil
 }
 
@@ -107,10 +110,6 @@ func (msg MsgSubmitTx) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Owner)
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid owner address")
-	}
-
-	if strings.TrimSpace(msg.InterchainAccount) == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "interchain account address cannot be empty")
 	}
 
 	return nil

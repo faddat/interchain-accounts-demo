@@ -7,7 +7,7 @@ option go_package = "github.com/cosmos/interchain-accounts/x/inter-tx/types";
 import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";
 
-// Msg defines the ica-authentication Msg service.
+// Msg defines the intertx Msg service.
 service Msg {
   // Register defines a rpc handler for MsgRegisterAccount
   rpc RegisterAccount(MsgRegisterAccount) returns (MsgRegisterAccountResponse);
@@ -15,7 +15,7 @@ service Msg {
   rpc SubmitTx(MsgSubmitTx) returns (MsgSubmitTxResponse);
 }
 
-// MsgRegisterAccount registers an interchain account for the given owner over the specified connection
+// MsgRegisterAccount defines the payload for Msg/RegisterAccount
 message MsgRegisterAccount {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
@@ -24,18 +24,17 @@ message MsgRegisterAccount {
   string connection_id              = 2 [(gogoproto.moretags) = "yaml:\"connection_id\""];
 }
 
-// MsgRegisterAccountResponse is the response type for Msg/RegisterAccount
+// MsgRegisterAccountResponse defines the response for Msg/RegisterAccount
 message MsgRegisterAccountResponse {}
 
-// MsgSubmitTx creates and submits an arbitrary transaction msg to be executed using an interchain account 
+// MsgSubmitTx defines the payload for Msg/SubmitTx
 message MsgSubmitTx {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
   string owner                       = 1;
-  string interchain_account          = 2 [(gogoproto.moretags) = "yaml:\"interchain_account\""];
-  google.protobuf.Any msg            = 3;
+  google.protobuf.Any msg            = 2;
 }
 
-// MsgSubmitTxResponse defines the MsgSubmitTx response type
+// MsgSubmitTxResponse defines the response for Msg/SubmitTx
 message MsgSubmitTxResponse {}
