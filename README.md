@@ -82,7 +82,7 @@ icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
 export VAL_ADDR=$(cat ./data/test-2/config/genesis.json | jq -r '.app_state.genutil.gen_txs[0].body.messages[0].validator_address') && echo $VAL_ADDR
 
 # Perform a staking delegation using the interchain account with the remaining the funds via ibc
-icad tx intertx delegate $ICA_ADDR $VAL_ADDR 5000stake --connection-id connection-0 --counterparty-connection-id connection-0 --from $DEMOWALLET_1 --chain-id test-1 --home ./data test-1 --node tcp://localhost:16657 --keyring-backend test -y
+icad tx intertx delegate $ICA_ADDR $VAL_ADDR 5000stake --connection-id connection-0 --counterparty-connection-id connection-0 --from $DEMOWALLET_1 --chain-id test-1 --home ./data/test-1 --node tcp://localhost:16657 --keyring-backend test -y
 
 # Inspect the staking delegations
 icad q staking delegations-to $VAL_ADDR --home ./data/test-2 --node tcp://localhost:26657
