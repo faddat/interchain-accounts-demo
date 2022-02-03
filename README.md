@@ -2,8 +2,6 @@
 
 ## Overview 
 
-> Beware of dragons! Alpha software!
-
 The following repository contains a basic example of an Interchain Accounts authentication module and serves as a developer guide for teams that wish to use interchain accounts functionality.
 
 The Interchain Accounts module is currently under active development and has been moved to the `ibc-go` repository [here](https://github.com/cosmos/ibc-go/tree/main/modules/apps/27-interchain-accounts). Interchain Accounts is aiming to release in Q1 2022.
