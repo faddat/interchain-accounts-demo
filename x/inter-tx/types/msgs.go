@@ -49,15 +49,16 @@ func (msg MsgRegisterAccount) GetSigners() []sdk.AccAddress {
 }
 
 // NewMsgSubmitTx creates and returns a new MsgSubmitTx instance
-func NewMsgSubmitTx(sdkMsg sdk.Msg, owner string) (*MsgSubmitTx, error) {
+func NewMsgSubmitTx(sdkMsg sdk.Msg, connectionID, owner string) (*MsgSubmitTx, error) {
 	any, err := PackTxMsgAny(sdkMsg)
 	if err != nil {
 		return nil, err
 	}
 
 	return &MsgSubmitTx{
-		Owner: owner,
-		Msg:   any,
+		ConnectionId: connectionID,
+		Owner:        owner,
+		Msg:          any,
 	}, nil
 }
 

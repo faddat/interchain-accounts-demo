@@ -43,7 +43,7 @@ func (suite *KeeperTestSuite) TestRegisterInterchainAccount() {
 				portID, err := icatypes.NewControllerPortID(owner)
 				suite.Require().NoError(err)
 
-				suite.GetICAApp(suite.chainA).ICAControllerKeeper.SetActiveChannelID(suite.chainA.GetContext(), portID, path.EndpointA.ChannelID)
+				suite.GetICAApp(suite.chainA).ICAControllerKeeper.SetActiveChannelID(suite.chainA.GetContext(), ibctesting.FirstConnectionID, portID, path.EndpointA.ChannelID)
 			},
 			false,
 		},

@@ -1,9 +1,10 @@
 package types
 
 // NewQueryInterchainAccountRequest creates and returns a new QueryInterchainAccountFromAddressRequest
-func NewQueryInterchainAccountRequest(owner string) *QueryInterchainAccountFromAddressRequest {
+func NewQueryInterchainAccountRequest(connectionID, owner string) *QueryInterchainAccountFromAddressRequest {
 	return &QueryInterchainAccountFromAddressRequest{
-		Owner: owner,
+		ConnectionId: connectionID,
+		Owner:        owner,
 	}
 }
 

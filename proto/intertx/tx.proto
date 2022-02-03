@@ -33,7 +33,8 @@ message MsgSubmitTx {
   option (gogoproto.goproto_getters) = false;
 
   string owner                       = 1;
-  google.protobuf.Any msg            = 2;
+  string connection_id = 2 [(gogoproto.moretags) = "yaml:\"connection_id\""];
+  google.protobuf.Any msg            = 3;
 }
 
 // MsgSubmitTxResponse defines the response for Msg/SubmitTx
