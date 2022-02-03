@@ -6,7 +6,7 @@ replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alp
 
 require (
 	github.com/cosmos/cosmos-sdk v0.45.0
-	github.com/cosmos/ibc-go/v3 v3.0.0-alpha2.0.20220202161049-8306273a5b1d
+	github.com/cosmos/ibc-go/v3 v3.0.0-beta1
 	github.com/gogo/protobuf v1.3.3
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
