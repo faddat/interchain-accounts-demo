@@ -25,9 +25,9 @@ cd interchain-accounts
 make install 
 ```
 
-2. Download and install an IBC relayer. *The following demo is supported by Hermes v0.9.0, and this is currently the recommended relayer.*
+2. Download and install an IBC relayer.
 ```
-cargo install --version 0.9.0 ibc-relayer-cli --bin hermes --locked
+cargo install --version 0.12.0 ibc-relayer-cli --bin hermes --locked
 ```
 
 3. Bootstrap two chains and create an IBC connection
