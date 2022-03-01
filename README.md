@@ -19,7 +19,7 @@ https://ibc.cosmos.network/main/app-modules/interchain-accounts/overview.html
 1. Clone this repository and build the application binary
 
 ```bash
-git clone https://github.com/cosmos/interchain-accounts.git
+git clone https://github.com/cosmos/interchain-accounts-demo.git
 cd interchain-accounts
 
 make install 
