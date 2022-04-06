@@ -4,7 +4,8 @@
 
 The following repository and [`x/inter-tx`](./x/inter-tx/) module serves as an example and is used to exercise the functionality of Interchain Accounts end-to-end for development purposes only.
 This module **SHOULD NOT** be used in production systems and developers building on Interchain Accounts are encouraged to design their own authentication modules which fit their use case.
-Documentation regarding authentication modules can be found in the IBC Developer Documentation below.
+Developers integrating Interchain Accounts may choose to firstly enable host chain functionality, and add authentication modules later as desired.
+Documentation regarding authentication modules can be found in the [IBC Developer Documentation](https://ibc.cosmos.network/main/apps/interchain-accounts/overview.html).
 
 ## Overview 
 
