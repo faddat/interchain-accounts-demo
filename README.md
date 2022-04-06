@@ -8,6 +8,11 @@ The Interchain Accounts module is currently under active development and has bee
 
 This repository will be updated regularly to consume pre-release versions of `ibc-go` equipped with the Interchain Accounts module.
 
+### Disclaimer
+
+The following repository and [`x/inter-tx`](./x/inter-tx/) module serves as an example and is used to exercise the functionality of Interchain Accounts end-to-end.
+This module *SHOULD NOT* be used in production systems and developers are encouraged to design their own authentication modules which fit their use case.
+
 ### Developer Documentation
 
 Interchain Accounts developer docs can be found on the IBC documentation website.
