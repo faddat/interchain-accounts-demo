@@ -1,6 +1,6 @@
 # Interchain Accounts
 
-### Disclaimer
+## Disclaimer
 
 The following repository and [`x/inter-tx`](./x/inter-tx/) module serves as an example and is used to exercise the functionality of Interchain Accounts end-to-end for development purposes only.
 This module **SHOULD NOT** be used in production systems and developers building on Interchain Accounts are encouraged to design their own authentication modules which fit their use case.
