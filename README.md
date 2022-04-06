@@ -1,23 +1,23 @@
 # Interchain Accounts
 
+### Disclaimer
+
+The following repository and [`x/inter-tx`](./x/inter-tx/) module serves as an example and is used to exercise the functionality of Interchain Accounts end-to-end for development purposes only.
+This module *SHOULD NOT* be used in production systems and developers building on Interchain Accounts are encouraged to design their own authentication modules which fit their use case.
+Documentation regarding authentication modules can be found in the IBC Developer Documentation below.
+
 ## Overview 
 
 The following repository contains a basic example of an Interchain Accounts authentication module and serves as a developer guide for teams that wish to use interchain accounts functionality.
 
-The Interchain Accounts module is currently under active development and has been moved to the `ibc-go` repository [here](https://github.com/cosmos/ibc-go/tree/main/modules/apps/27-interchain-accounts). Interchain Accounts is aiming to release in Q1 2022.
-
-This repository will be updated regularly to consume pre-release versions of `ibc-go` equipped with the Interchain Accounts module.
-
-### Disclaimer
-
-The following repository and [`x/inter-tx`](./x/inter-tx/) module serves as an example and is used to exercise the functionality of Interchain Accounts end-to-end.
-This module *SHOULD NOT* be used in production systems and developers are encouraged to design their own authentication modules which fit their use case.
+The Interchain Accounts module is now maintained within the `ibc-go` repository [here](https://github.com/cosmos/ibc-go/tree/main/modules/apps/27-interchain-accounts). 
+Interchain Accounts is now included in the [`v3.0.0`](https://github.com/cosmos/ibc-go/releases/tag/v3.0.0) release of `ibc-go`.
 
 ### Developer Documentation
 
 Interchain Accounts developer docs can be found on the IBC documentation website.
 
-https://ibc.cosmos.network/main/app-modules/interchain-accounts/overview.html
+https://ibc.cosmos.network/main/apps/interchain-accounts/overview.html
 
 ## Setup
 
