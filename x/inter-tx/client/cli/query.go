@@ -3,7 +3,7 @@ package cli
 import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/interchain-accounts/x/inter-tx/types"
+	"github.com/cosmos/interchain-accounts-demo/x/inter-tx/types"
 	"github.com/spf13/cobra"
 )
 

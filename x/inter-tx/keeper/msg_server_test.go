@@ -6,8 +6,8 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v3/testing"
 
-	"github.com/cosmos/interchain-accounts/x/inter-tx/keeper"
-	"github.com/cosmos/interchain-accounts/x/inter-tx/types"
+	"github.com/cosmos/interchain-accounts-demo/x/inter-tx/keeper"
+	"github.com/cosmos/interchain-accounts-demo/x/inter-tx/types"
 )
 
 func (suite *KeeperTestSuite) TestRegisterInterchainAccount() {

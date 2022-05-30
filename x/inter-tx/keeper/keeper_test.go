@@ -14,7 +14,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v3/testing"
 
-	icaapp "github.com/cosmos/interchain-accounts/app"
+	icaapp "github.com/cosmos/interchain-accounts-demo/app"
 )
 
 var (

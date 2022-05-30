@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package intertx;
 
-option go_package = "github.com/cosmos/interchain-accounts/x/inter-tx/types";
+option go_package = "github.com/cosmos/interchain-accounts-demo/x/inter-tx/types";
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";

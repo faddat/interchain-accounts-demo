@@ -93,13 +93,13 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
-	appparams "github.com/cosmos/interchain-accounts/app/params"
+	appparams "github.com/cosmos/interchain-accounts-demo/app/params"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
-	intertx "github.com/cosmos/interchain-accounts/x/inter-tx"
-	intertxkeeper "github.com/cosmos/interchain-accounts/x/inter-tx/keeper"
-	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
+	intertx "github.com/cosmos/interchain-accounts-demo/x/inter-tx"
+	intertxkeeper "github.com/cosmos/interchain-accounts-demo/x/inter-tx/keeper"
+	intertxtypes "github.com/cosmos/interchain-accounts-demo/x/inter-tx/types"
 )
 
 const Name = "ica"
