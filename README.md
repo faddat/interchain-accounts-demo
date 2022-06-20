@@ -196,12 +196,3 @@ chore(bump): bumping version to 2.0
 fix(bug): fixing issue with...
 feat(featurex): adding feature...
 ```
-
-icad tx ibc-fee pay-packet-fee icacontroller-cosmos1m9l358xunhhwds0568za49mzhvuxx9uxre5tud channel-0 1 --recv-fee 1000stake --ack-fee 1000stake --timeout-fee 1000stake --from $WALLET_1 --home ./data/test-1 --keyring-backend test --chain-id test-1 --node tcp://localhost:16657
-
-
-icad q ibc channel channels --home ./data/test-1 --node tcp://localhost:16657
-icad q ibc channel channels --home ./data/test-2 --node tcp://localhost:26657
-
-icad q ibc-fee channel icacontroller-cosmos1m9l358xunhhwds0568za49mzhvuxx9uxre5tud channel-0 --home ./data/test-1 --node tcp://localhost:16657
-icad q ibc-fee channel ica-host channel-0 --home ./data/test-2 --node tcp://localhost:26657
