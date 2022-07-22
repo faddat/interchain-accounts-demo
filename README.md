@@ -46,6 +46,12 @@ make init
 make start-rly
 ```
 
+> This is the situation *before* `make init`. The blockchains are not live yet.
+![pre-init](./images/pre-init.png)
+
+> This is the situation *after* `make init`. The chain binary's have been built and started, and an IBC connection between controller and host chains has been set up.
+![post-init](./images/post-init.png)
+
 ## Demo
 
 **NOTE:** For the purposes of this demo the setup scripts have been provided with a set of hardcoded mnemonics that generate deterministic wallet addresses used below.
@@ -72,6 +78,9 @@ icad query intertx interchainaccounts connection-0 $DEMOWALLET_1 --home ./data/t
 export ICA_ADDR=$(icad query intertx interchainaccounts connection-0 $DEMOWALLET_1 --home ./data/test-1 --node tcp://localhost:16657 -o json | jq -r '.interchain_account_address') && echo $ICA_ADDR
 ```
 
+> This is the situation after registering the ICA. A channel has been created and an ICA has been registered on the host.
+![post-register](./images/post-register.png)
+
 #### Funding the Interchain Account wallet
 
 Allocate funds to the new Interchain Account wallet by using the `bank send` cmd.
@@ -87,6 +96,9 @@ icad tx bank send $DEMOWALLET_2 $ICA_ADDR 10000stake --chain-id test-2 --home ./
 # Query the balance once again and observe the changes
 icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
 ```
+
+> This is the situation after funding the ICA.
+![post-fund](./images/post-fund.png)
 
 #### Sending Interchain Account transactions
 
@@ -119,6 +131,9 @@ icad tx intertx submit [path/to/msg.json] --connection-id connection-0 --from $D
 # Inspect the staking delegations on the host chain
 icad q staking delegations-to cosmosvaloper1qnk2n4nlkpw9xfqntladh74w6ujtulwnmxnh3k --home ./data/test-2 --node tcp://localhost:26657
 ```
+
+> This is the situation before after sending the staking tx. The user who is the owner of the ICA has staked funds on the host chain to a validator of choice through an interchain accounts packet.
+![post-sendtx](./images/post-sendtx.png)
 
 - **Example 2:** Bank Send
 
