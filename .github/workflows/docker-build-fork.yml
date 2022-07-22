@@ -1,0 +1,14 @@
+name: Publish in GitHub Package Registry
+on:
+  pull_request:
+jobs:
+  docker-build-succeeds:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.head.repo.fork }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Docker Build
+        run: docker build . --no-cache
