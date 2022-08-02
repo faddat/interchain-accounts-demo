@@ -27,25 +27,47 @@ cd interchain-accounts
 make install 
 ```
 
-2. Download and install an IBC relayer.
-```
+2. Download and install an IBC relayer. ([hermes](https://hermes.informal.systems/), [go relayer](https://github.com/cosmos/relayer) or both )
+```bash
+# hermes
 cargo install --version 0.13.0-rc.0 ibc-relayer-cli --bin hermes --locked
+
+#go relayer (make sure to use v2.0.0-rc4 or later!)
+git clone https://github.com/cosmos/relayer.git
+cd relayer && git checkout v2.0.0-rc4
+make install
 ```
 
-3. Bootstrap two chains and create an IBC connection
+3. Bootstrap two chains, configure the relayer and create an IBC connection (and additionally an ICS-20 channel on top of the connection)
+```bash
+# hermes
+make init-hermes
+
+# go relayer
+make init-golang-relayer
 ```
-make init
+
+:warning: **NOTE:** When you want to use both relayers interchangeably, using both of these `make` commands will set up two seperate connections (which is not needed and can lead to confusion). In the case of using both relayers, perform:
+```bash
+make init-golang-rly
+./network/hermes/restore-keys.sh
 ```
 
 4. Start the relayer
-```
-make start-rly
+```bash
+#hermes
+make start-hermes
+
+#go relayer
+make start-golang-rly
 ```
 
-> This is the situation *before* `make init`. The blockchains are not live yet.
+:exclamation: **NOTE:** It is abstracted away in the script files, but in case you want to manually run `rly start` with interchain accounts, you will need to add this flag: `-p events` to it.
+
+> This is the situation *before* `make init-*`. The blockchains are not live yet.
 ![pre-init](./images/pre-init.png)
 
-> This is the situation *after* `make init`. The chain binary's have been built and started, and an IBC connection between controller and host chains has been set up.
+> This is the situation *after* `make init-*`. The chain binary's have been built and started, and an IBC connection between controller and host chains has been set up.
 ![post-init](./images/post-init.png)
 
 ## Demo
@@ -166,7 +188,11 @@ icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
 3. Restart the relayer process
 
 ```bash
-make start-rly
+#hermes
+make start-hermes
+
+#go relayer
+make start-golang-rly
 ```
 
 4. Observe the packet timeout and relayer reacting appropriately (issuing a MsgTimeout to testchain `test-1`).

@@ -4,18 +4,18 @@
     "client-id": "",
     "connection-id": "",
     "channel-id": "",
-    "port-id": "ibcaccount",
-    "order": "ordered",
-    "version": "ics27-1"
+    "port-id": "",
+    "order": "unordered",
+    "version": "ics20-1"
   },
   "dst": {
     "chain-id": "test-2",
     "client-id": "",
     "connection-id": "",
     "channel-id": "",
-    "port-id": "ibcaccount",
-    "order": "ordered",
-    "version": "ics27-1"
+    "port-id": "",
+    "order": "unordered",
+    "version": "ics20-1"
   },
   "strategy": {
     "type": "naive"
