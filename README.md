@@ -38,7 +38,7 @@ cd relayer && git checkout v2.0.0-rc4
 make install
 ```
 
-3. Bootstrap two chains, configure the relayer and create an IBC connection (and additionally an ICS-20 channel on top of the connection)
+3. Bootstrap two chains, configure the relayer and create an IBC connection (on top of clients that are created as well)
 ```bash
 # hermes
 make init-hermes
@@ -181,7 +181,7 @@ icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
 
 #### Testing timeout scenario
 
-1. Stop the Hermes relayer process and send an interchain accounts transaction using one of the examples provided above.
+1. Stop the relayer process and send an interchain accounts transaction using one of the examples provided above.
 
 2. Wait for approx. 1 minute for the timeout to elapse.
 
