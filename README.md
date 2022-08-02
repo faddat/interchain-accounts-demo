@@ -55,7 +55,9 @@ make start-rly
 ```bash
 # Store the following account addresses within the current shell env
 export WALLET_1=$(icad keys show wallet1 -a --keyring-backend test --home ./data/test-1) && echo $WALLET_1;
-export WALLET_2=$(icad keys show wallet2 -a --keyring-backend test --home ./data/test-2) && echo $WALLET_2;
+export WALLET_2=$(icad keys show wallet2 -a --keyring-backend test --home ./data/test-1) && echo $WALLET_2;
+export WALLET_3=$(icad keys show wallet3 -a --keyring-backend test --home ./data/test-2) && echo $WALLET_3;
+export WALLET_4=$(icad keys show wallet4 -a --keyring-backend test --home ./data/test-2) && echo $WALLET_4;
 ```
 
 ### Registering an Interchain Account via IBC
@@ -87,7 +89,7 @@ Note this is executed on the host chain to provide the account with an initial b
 icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
 
 # Send funds to the interchain account.
-icad tx bank send $WALLET_2 $ICA_ADDR 10000stake --chain-id test-2 --home ./data/test-2 --node tcp://localhost:26657 --keyring-backend test -y
+icad tx bank send $WALLET_3 $ICA_ADDR 10000stake --chain-id test-2 --home ./data/test-2 --node tcp://localhost:26657 --keyring-backend test -y
 
 # Query the balance once again and observe the changes
 icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
