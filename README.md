@@ -1,9 +1,5 @@
 # Interchain Accounts
 
-## Disclaimer
-
-The following repository and [`x/inter-tx`](./x/inter-tx/) module serves as an example and is used to exercise the functionality of Interchain Accounts end-to-end for development purposes only.
-This module **SHOULD NOT** be used in production systems and developers building on Interchain Accounts are encouraged to design their own authentication modules which fit their use case.
 Developers integrating Interchain Accounts may choose to firstly enable host chain functionality, and add authentication modules later as desired.
 Documentation regarding authentication modules can be found in the [IBC Developer Documentation](https://ibc.cosmos.network/main/apps/interchain-accounts/overview.html).
 
@@ -46,6 +42,12 @@ make init
 make start-rly
 ```
 
+> This is the situation *before* `make init`. The blockchains are not live yet.
+![pre-init](./images/pre-init.png)
+
+> This is the situation *after* `make init`. The chain binary's have been built and started, and an IBC connection between controller and host chains has been set up.
+![post-init](./images/post-init.png)
+
 ## Demo
 
 **NOTE:** For the purposes of this demo the setup scripts have been provided with a set of hardcoded mnemonics that generate deterministic wallet addresses used below.
@@ -72,6 +74,9 @@ icad query intertx interchainaccounts connection-0 $WALLET_1 --home ./data/test-
 export ICA_ADDR=$(icad query intertx interchainaccounts connection-0 $WALLET_1 --home ./data/test-1 --node tcp://localhost:16657 -o json | jq -r '.interchain_account_address') && echo $ICA_ADDR
 ```
 
+> This is the situation after registering the ICA. A channel has been created and an ICA has been registered on the host.
+![post-register](./images/post-register.png)
+
 #### Funding the Interchain Account wallet
 
 Allocate funds to the new Interchain Account wallet by using the `bank send` cmd.
@@ -87,6 +92,9 @@ icad tx bank send $WALLET_2 $ICA_ADDR 10000stake --chain-id test-2 --home ./data
 # Query the balance once again and observe the changes
 icad q bank balances $ICA_ADDR --chain-id test-2 --node tcp://localhost:26657
 ```
+
+> This is the situation after funding the ICA.
+![post-fund](./images/post-fund.png)
 
 #### Sending Interchain Account transactions
 
@@ -119,6 +127,9 @@ icad tx intertx submit [path/to/msg.json] --connection-id connection-0 --from $W
 # Inspect the staking delegations on the host chain
 icad q staking delegations-to cosmosvaloper1qnk2n4nlkpw9xfqntladh74w6ujtulwnmxnh3k --home ./data/test-2 --node tcp://localhost:26657
 ```
+
+> This is the situation before after sending the staking tx. The user who is the owner of the ICA has staked funds on the host chain to a validator of choice through an interchain accounts packet.
+![post-sendtx](./images/post-sendtx.png)
 
 - **Example 2:** Bank Send
 

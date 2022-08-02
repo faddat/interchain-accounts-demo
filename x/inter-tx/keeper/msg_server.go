@@ -6,12 +6,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
-	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
-	ibcfeetypes "github.com/cosmos/ibc-go/v3/modules/apps/29-fee/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
-
+	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
+	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v4/modules/core/24-host"
 	"github.com/cosmos/interchain-accounts/x/inter-tx/types"
 )
 
@@ -30,14 +27,7 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 func (k msgServer) RegisterAccount(goCtx context.Context, msg *types.MsgRegisterAccount) (*types.MsgRegisterAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	feeMetadata := ibcfeetypes.Metadata{
-		AppVersion: icatypes.NewDefaultMetadataString(msg.ConnectionId, msg.ConnectionId),
-		FeeVersion: ibcfeetypes.Version,
-	}
-
-	feeVersion := string(ibcfeetypes.ModuleCdc.MustMarshalJSON(&feeMetadata))
-
-	if err := k.icaControllerKeeper.RegisterInterchainAccount(ctx, msg.ConnectionId, msg.Owner, string(feeVersion)); err != nil {
+	if err := k.icaControllerKeeper.RegisterInterchainAccount(ctx, msg.ConnectionId, msg.Owner, msg.Version); err != nil {
 		return nil, err
 	}
 
