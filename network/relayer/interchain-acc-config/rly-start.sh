@@ -17,4 +17,4 @@ if ! [ -x "$(command -v $BINARY)" ]; then
 fi
 
 echo "Starting to listen relayer..."
-$BINARY start test1-test2 -p events --home $CHAIN_DIR/$RELAYER_DIR
+$BINARY start test1-test2 -p events -b 100 --home $CHAIN_DIR/$RELAYER_DIR
