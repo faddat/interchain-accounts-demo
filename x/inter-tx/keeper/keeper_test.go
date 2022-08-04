@@ -10,9 +10,9 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	ibctesting "github.com/cosmos/ibc-go/v4/testing"
+	icatypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	ibctesting "github.com/cosmos/ibc-go/v5/testing"
 
 	icaapp "github.com/cosmos/interchain-accounts/app"
 )
@@ -41,7 +41,7 @@ func SetupICATestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
 	db := dbm.NewMemDB()
 	encCdc := icaapp.MakeEncodingConfig()
 	app := icaapp.New(log.NewNopLogger(), db, nil, true, map[int64]bool{}, icaapp.DefaultNodeHome, 5, encCdc, icaapp.EmptyAppOptions{})
-	return app, icaapp.NewDefaultGenesisState(encCdc.Marshaler)
+	return app, icaapp.NewDefaultGenesisState(encCdc.Codec)
 }
 
 // KeeperTestSuite is a testing suite to test keeper functions

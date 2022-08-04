@@ -3,6 +3,7 @@ vue/dist
 secret.yml
 build
 .idea
+.vscode
 
 # data for local chains
 data
