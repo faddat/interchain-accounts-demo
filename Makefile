@@ -119,7 +119,7 @@ proto-update-deps:
 ###                                Initialize                               ###
 ###############################################################################
 
-init: kill-dev install 
+init-hermes: kill-dev install 
 	@echo "Initializing both blockchains..."
 	./network/init.sh
 	./network/start.sh
@@ -132,14 +132,17 @@ init-golang-rly: kill-dev install
 	./network/init.sh
 	./network/start.sh
 	@echo "Initializing relayer..."
-	./network/relayer/interchain-acc-config/rly.sh
+	./network/relayer/interchain-acc-config/rly-init.sh
 
 start: 
 	@echo "Starting up test network"
 	./network/start.sh
 
-start-rly:
+start-hermes:
 	./network/hermes/start.sh
+
+start-golang-rly:
+	./network/relayer/interchain-acc-config/rly-start.sh
 
 kill-dev:
 	@echo "Killing icad and removing previous data"

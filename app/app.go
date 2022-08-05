@@ -88,6 +88,9 @@ import (
 	ibctransferkeeper "github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v5/modules/core"
+  ibcfee "github.com/cosmos/ibc-go/v4/modules/apps/29-fee"
+	ibcfeekeeper "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/keeper"
+	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
 	ibcclient "github.com/cosmos/ibc-go/v5/modules/core/02-client"
 	ibcclientclient "github.com/cosmos/ibc-go/v5/modules/core/02-client/client"
 	ibcclienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
@@ -152,6 +155,7 @@ var (
 		vesting.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		intertx.AppModuleBasic{},
+		ibcfee.AppModuleBasic{},
 	// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -165,6 +169,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		icatypes.ModuleName:            nil,
+		ibcfeetypes.ModuleName:         nil,
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -217,6 +222,7 @@ type App struct {
 	UpgradeKeeper       upgradekeeper.Keeper
 	ParamsKeeper        paramskeeper.Keeper
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	IBCFeeKeeper        ibcfeekeeper.Keeper
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
 	InterTxKeeper       intertxkeeper.Keeper
@@ -263,6 +269,7 @@ func New(
 		govtypes.StoreKey, feegrant.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, icacontrollertypes.StoreKey,
 		icahosttypes.StoreKey, capabilitytypes.StoreKey, intertxtypes.StoreKey,
+		ibcfeetypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -374,9 +381,16 @@ func New(
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
 
+	app.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
+		appCodec, keys[ibcfeetypes.StoreKey], app.GetSubspace(ibcfeetypes.ModuleName),
+		app.IBCKeeper.ChannelKeeper, // may be replaced with IBC middleware
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper, app.AccountKeeper, app.BankKeeper,
+	)
+
 	app.ICAControllerKeeper = icacontrollerkeeper.NewKeeper(
 		appCodec, keys[icacontrollertypes.StoreKey], app.GetSubspace(icacontrollertypes.SubModuleName),
-		app.IBCKeeper.ChannelKeeper, // may be replaced with middleware such as ics29 fee
+		app.IBCFeeKeeper, // may be replaced with middleware such as ics29 fee
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		scopedICAControllerKeeper, app.MsgServiceRouter(),
 	)
@@ -392,14 +406,19 @@ func New(
 	interTxIBCModule := intertx.NewIBCModule(app.InterTxKeeper)
 
 	icaControllerIBCModule := icacontroller.NewIBCMiddleware(interTxIBCModule, app.ICAControllerKeeper)
+	icaControllerStack := ibcfee.NewIBCMiddleware(icaControllerIBCModule, app.IBCFeeKeeper)
+
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
+	icaHostStack := ibcfee.NewIBCMiddleware(icaHostIBCModule, app.IBCFeeKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
-	ibcRouter.AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule).
-		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
-		AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
-		AddRoute(intertxtypes.ModuleName, icaControllerIBCModule)
+	ibcRouter.
+		AddRoute(intertxtypes.ModuleName, icaControllerStack).
+		AddRoute(icacontrollertypes.SubModuleName, icaControllerStack).
+		AddRoute(icahosttypes.SubModuleName, icaHostStack).
+		AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
+
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
@@ -441,6 +460,7 @@ func New(
 		transferModule,
 		icaModule,
 		interTxModule,
+		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -452,14 +472,14 @@ func New(
 		upgradetypes.ModuleName, capabilitytypes.ModuleName, minttypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
 		evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName, ibctransfertypes.ModuleName, authtypes.ModuleName,
 		banktypes.ModuleName, govtypes.ModuleName, crisistypes.ModuleName, genutiltypes.ModuleName, feegrant.ModuleName,
-		paramstypes.ModuleName, vestingtypes.ModuleName, icatypes.ModuleName, intertxtypes.ModuleName,
+		paramstypes.ModuleName, vestingtypes.ModuleName, icatypes.ModuleName, intertxtypes.ModuleName, ibcfeetypes.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName, ibctransfertypes.ModuleName,
 		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
 		minttypes.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, feegrant.ModuleName, paramstypes.ModuleName,
-		upgradetypes.ModuleName, vestingtypes.ModuleName, icatypes.ModuleName, intertxtypes.ModuleName,
+		upgradetypes.ModuleName, vestingtypes.ModuleName, icatypes.ModuleName, intertxtypes.ModuleName, ibcfeetypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -472,6 +492,7 @@ func New(
 		slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName, crisistypes.ModuleName,
 		ibchost.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, ibctransfertypes.ModuleName,
 		icatypes.ModuleName, intertxtypes.ModuleName, feegrant.ModuleName, paramstypes.ModuleName, upgradetypes.ModuleName, vestingtypes.ModuleName,
+		ibcfeetypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
