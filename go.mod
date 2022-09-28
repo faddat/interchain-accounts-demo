@@ -22,7 +22,7 @@ require (
 )
 
 require (
-	github.com/cosmos/ibc-go/v5 v5.0.0-rc2
+	github.com/cosmos/ibc-go/v6 v6.0.0-20220928193416-78249c1d28f0
 	github.com/golang/protobuf v1.5.2
 	google.golang.org/genproto v0.0.0-20220725144611-272f38e5d71b
 )
@@ -78,6 +78,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.0.1 // indirect
+	github.com/google/gofuzz v1.1.1-0.20200604201612-c04b05f3adfa // indirect
 	github.com/google/orderedcode v0.0.1 // indirect
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
