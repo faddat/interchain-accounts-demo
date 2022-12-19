@@ -36,7 +36,7 @@ jobs:
           cd cmd/icad
           go build .
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: icad ${{ matrix.targetos }} ${{ matrix.arch }}
           path: cmd/icad/icad
